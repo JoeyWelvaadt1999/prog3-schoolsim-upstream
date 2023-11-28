@@ -14,6 +14,7 @@ from name_generator import NameGenerator
 from states.hallway_state import HallwayState
 from student import Student
 from ui import UI, Legend
+from pygame.locals import *
 
 
 class Simulation:
@@ -23,6 +24,7 @@ class Simulation:
         Initialize all attributes without declaring their values, then use reset() to declare values.
         :param conf: configuration for the simulation
         """
+        self.real_screen = None
         self.screen = None
         self.background = None
         self.env = None
@@ -50,7 +52,8 @@ class Simulation:
         :return:
         """
         # initialize pygame
-        self.screen, self.background = self.setup_pygame(conf)
+        self.real_screen, self.screen, self.background = self.setup_pygame(conf)
+        self.calculate_screen_transform()
 
         # initialize simpy
         self.env = simpy.Environment()
@@ -127,7 +130,8 @@ class Simulation:
         for student in self.students:
             student.draw(delta_time)
 
-        pygame.display.update()
+        self.real_screen.blit(pygame.transform.smoothscale(self.screen, self.target_rect.size), self.target_rect)
+        pygame.display.flip()
 
     def handle_pygame_events(self):
         """
@@ -172,6 +176,10 @@ class Simulation:
                     self.reset(self.conf)
                 elif event.key == pygame.K_t:
                     self.simulation_speed = 1
+            # resizable window
+            elif event.type == VIDEORESIZE:
+                self.real_screen = pygame.display.set_mode(event.size, HWSURFACE | DOUBLEBUF | RESIZABLE)
+                self.calculate_screen_transform()
 
         self.simulation_speed = round(self.simulation_speed, 2)
         self.ui.legend.speed = self.simulation_speed
@@ -193,21 +201,26 @@ class Simulation:
         while self.env.peek() < self.simulation_time:
             self.env.step()
 
+    def calculate_screen_transform(self):
+        screen_rect = self.screen.get_rect()
+        buffer_rect = self.real_screen.get_rect()
+        source_aspect = screen_rect.w / screen_rect.h
+        target_aspect = buffer_rect.w / buffer_rect.h
+        if(source_aspect < target_aspect):
+            target_w = buffer_rect.h * source_aspect
+            self.target_rect = Rect((buffer_rect.w - target_w) / 2, 0, target_w, buffer_rect.h)
+        else:
+            target_h = buffer_rect.w / source_aspect
+            self.target_rect = Rect(0, (buffer_rect.h - target_h) / 2, buffer_rect.w, target_h)
+
     @staticmethod
     def setup_pygame(conf):
         """ Wrapper for setting up pygame in our program """
         pygame.init()
-        pygame_screen = pygame.display.set_mode((conf.screen.width, conf.screen.height))
+        pygame_screen = pygame.display.set_mode((conf.screen.width, conf.screen.height), HWSURFACE | DOUBLEBUF | RESIZABLE)
         pygame.display.set_caption("School Sim")
+        buffer_screen = pygame_screen.copy()
         background = pygame.image.load(Path(conf.background)).convert()
-        pygame_screen.blit(background, (0, 0))
+        buffer_screen.blit(background, (0, 0))
         pygame.font.init()
-        return pygame_screen, background
-
-
-
-
-
-
-
-
+        return pygame_screen, buffer_screen, background

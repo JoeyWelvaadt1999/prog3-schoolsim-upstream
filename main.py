@@ -1,5 +1,6 @@
 import time
 import util
+import sys
 
 from simulation import Simulation
 
@@ -14,7 +15,8 @@ if __name__ == "__main__":
     simulation = Simulation(conf)
 
     """
-    The simulation runs regardless of the speed at which the graphics can be drawn.
+    The simulation runs regardless of the speed at which the graphics can be drawn,
+    unless headless is set to true in config.yaml, in which case it runs as fast as possible without graphics.
     """
     start = time.time()
     current_time = start
@@ -24,10 +26,11 @@ if __name__ == "__main__":
         current_time = time.time()
         delta_time = current_time - last_time
 
-        if(delta_time >= frame_time):
+        if delta_time >= frame_time:
             simulation.run_for(delta_time * simulation.simulation_speed)
-            simulation.draw(delta_time)
-            simulation.handle_pygame_events()
+            if not conf.headless:
+                simulation.draw(delta_time)
+                simulation.handle_pygame_events()
             last_time = current_time
 
     # Currently, the simulation screen terminates automatically when the end time is reached.

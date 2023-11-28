@@ -54,10 +54,10 @@ class Simulation:
 
         # initialize simpy
         self.env = simpy.Environment()
-        self.paused = True
+        self.paused = not conf.headless
 
         # initialize time settings
-        self.simulation_speed = 10
+        self.simulation_speed = 10 if not conf.headless else 999999999 # dirty fix for headless
         self.fps = 20
         self.max_end_time = 5000000
         self.last_frame_time = time.time()
@@ -182,11 +182,12 @@ class Simulation:
         sleep for a time based on our sim speed
         :return:
         """
-        if(self.paused):
+        if self.paused:
             return
         self.simulation_time += delta_time
         self.ui.legend.sim_time = self.simulation_time
-        self.ui.draw()
+        if not self.conf.headless:
+            self.ui.draw()
 
         # env.peek() gives the time of the next event in the simpy environment
         while self.env.peek() < self.simulation_time:

@@ -1,0 +1,51 @@
+screen:
+  height: 1000
+  width: 1000
+  position: !!python/tuple [0,0]
+background: "images/background.png"
+classroom:
+  height: 440
+  width: 360
+  position: !!python/tuple [0,40]
+  seats: 25
+  seat_size: 40
+  space_between_seats: 40
+  student_table_offset: !!python/tuple [0,16]
+  seat_image: "images/table.png"
+student:
+  size: !!python/tuple [40,40]
+  images_path: "images/students"
+  grid_size: !!python/tuple [32,32]
+coffee_corner:
+  height: 360
+  width: 360
+  position: !!python/tuple [620,40]
+coffee_machine:
+  image: "images/coffee_machine.png"
+  height: 53
+  width: 38
+  amount: 2
+  position:
+    0: !!python/tuple [680,90]
+    1: !!python/tuple [820,90]
+hallway:
+  height: 200
+  width: 880
+  position: !!python/tuple [60,660]
+  spot_size: 40
+  rows: 2
+ui:
+  height: 150
+  width: 450
+  font_filename: "Retro Gaming.ttf"
+  font_size: 15
+  position: !!python/tuple [500,800]
+  legend:
+    left: 50
+    top: 770
+    width: 200
+    height: 200
+
+logging:
+  file: koffie.log
+  level: 20

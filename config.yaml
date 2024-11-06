@@ -25,10 +25,12 @@ coffee_machine:
   image: "images/coffee_machine.png"
   height: 53
   width: 38
-  amount: 2
+  amount: 4
   position:
     0: !!python/tuple [680,90]
     1: !!python/tuple [820,90]
+    2: !!python/tuple [920,90]
+    3: !!python/tuple [740,90]
 hallway:
   height: 200
   width: 880

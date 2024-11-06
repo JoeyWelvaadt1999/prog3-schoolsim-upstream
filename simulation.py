@@ -101,7 +101,7 @@ class Simulation:
 
         # Students
         # TODO: You might want to change the way students are spawned
-        NUM_STUDENTS = 30
+        NUM_STUDENTS = 1
         self.students = []
         image_size = conf.student.size
         image_grid_size = conf.student.grid_size

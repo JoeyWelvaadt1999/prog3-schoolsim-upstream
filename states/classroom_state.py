@@ -16,6 +16,9 @@ class ClassroomState(State):
         self.sprite = 10
         self.animation_speed = max(random.normalvariate(0.5, 0.05), 0.25)
 
+    def enter(self) -> None:
+        pass
+
     # TODO: Placeholder, student inserts modelled behaviour here
     def step(self):
         _classroom = self.student.kb['classroom']
@@ -41,3 +44,6 @@ class ClassroomState(State):
         new_state = HallwayState(self.env, self.student)
         new_state.sprite = 7
         self.switch_state(new_state)
+
+    def leave(self) -> None:
+        pass 

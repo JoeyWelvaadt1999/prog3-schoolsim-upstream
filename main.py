@@ -3,6 +3,7 @@ import util
 import sys
 
 from simulation import Simulation
+from visualization.data_viewer import DataViewer
 
 # init logging
 logger = util.logger
@@ -13,6 +14,9 @@ if __name__ == "__main__":
     conf = util.get_conf()
 
     simulation = Simulation(conf)
+
+    dataViewer = DataViewer(simulation.students)
+    dataViewer.plotThirstDistribution()
 
     """
     The simulation runs regardless of the speed at which the graphics can be drawn,
@@ -37,3 +41,5 @@ if __name__ == "__main__":
     # Uncomment the code below if you want the screen to remain until it is manually closed.
     # while True:
     #     time.sleep(0.01)
+
+

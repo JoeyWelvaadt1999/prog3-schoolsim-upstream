@@ -19,6 +19,9 @@ class CoffeeState(State):
         # Arbitrarily chosen
         self.drink_choice = (["coffee", "tea"], 1, [0.8, 0, 2])
 
+    def enter(self) -> None:
+        pass
+
     # TODO: Placeholder, student inserts modelled behaviour here
     def step(self):
         nr_of_drinks = np.random.poisson(self.student.general_thirstiness, size=1)[0]
@@ -50,3 +53,6 @@ class CoffeeState(State):
         new_state = HallwayState(self.env, self.student)
         new_state.sprite = 4
         self.switch_state(new_state)
+
+    def leave(self) -> None:
+        pass

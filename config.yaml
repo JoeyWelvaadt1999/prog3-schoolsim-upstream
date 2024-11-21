@@ -34,7 +34,7 @@ hallway:
   width: 880
   position: !!python/tuple [60,660]
   spot_size: 40
-  rows: 2
+  rows: 3
 ui:
   height: 150
   width: 450

@@ -3,6 +3,8 @@ from pathlib import Path
 from box import Box
 import yaml
 
+class DataStorage():
+    pass
 
 class QueueSignal:
     def __init__(self):

@@ -33,3 +33,6 @@ class HallwayState(State):
             self.switch_state(ClassroomState(self.env, self.student))
         else:
             self.switch_state(CoffeeState(self.env, self.student))
+
+    def leave(self) -> None:
+        pass

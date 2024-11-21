@@ -1,51 +1,51 @@
 headless: false
 screen:
-  height: 1000
-  width: 1000
+  height: 800
+  width: 800
   position: !!python/tuple [0,0]
 background: "images/background.png"
 classroom:
-  height: 440
-  width: 360
-  position: !!python/tuple [0,40]
+  height: 0.44
+  width: 0.360
+  position: !!python/tuple [0, 0.04]
   seats: 25
-  seat_size: 40
-  space_between_seats: 40
-  student_table_offset: !!python/tuple [0,16]
+  seat_size: 0.04
+  space_between_seats: 0.04
+  student_table_offset: !!python/tuple [0, 0.016]
   seat_image: "images/table.png"
 student:
-  size: !!python/tuple [40,40]
+  size: !!python/tuple [0.04, 0.04]
   images_path: "images/students"
-  grid_size: !!python/tuple [32,32]
+  grid_size: !!python/tuple [0.032, 0.032]
 coffee_corner:
-  height: 360
-  width: 360
-  position: !!python/tuple [620,40]
+  height: 0.36
+  width: 0.36
+  position: !!python/tuple [0.62, 0.04]
 coffee_machine:
   image: "images/coffee_machine.png"
-  height: 53
-  width: 38
+  height: 0.053
+  width: 0.038
   amount: 2
   position:
-    0: !!python/tuple [680,90]
-    1: !!python/tuple [820,90]
+    0: !!python/tuple [0.68, 0.09]
+    1: !!python/tuple [0.82, 0.09]
 hallway:
-  height: 200
-  width: 880
-  position: !!python/tuple [60,660]
-  spot_size: 40
+  height: 0.2
+  width: 0.88
+  position: !!python/tuple [0.06, 0.66]
+  spot_size: 0.04
   rows: 3
 ui:
-  height: 150
-  width: 450
+  height: 0.15
+  width: 0.45
   font_filename: "Retro Gaming.ttf"
   font_size: 15
-  position: !!python/tuple [500,800]
+  position: !!python/tuple [0.5, 0.8]
   legend:
-    left: 50
-    top: 770
-    width: 200
-    height: 200
+    left: 0.05
+    top: 0.77
+    width: 0.2
+    height: 0.2
 
 logging:
   file: koffie.log

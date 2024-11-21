@@ -45,6 +45,13 @@ class Simulation:
 
         self.reset(conf)
 
+    """
+        I changed the values in the config to be ratios instead of fixed values, this function returns the value it was supposed to be taking the width and height of the simulation
+    """
+    def get_real_from_ratio(self, ratio: float, isWidth: bool) -> int:
+        otherNumber = self.conf.screen.width if isWidth else self.conf.screen.height
+        return int(otherNumber * ratio)
+
     def reset(self, conf):
         """
         Reset the simulation. Set all attributes of the simulation to their initial values
@@ -67,15 +74,26 @@ class Simulation:
         self.simulation_time = 0
 
         # UI
-        self.legend = Legend(conf.ui.legend.left, conf.ui.legend.top, conf.ui.legend.width, conf.ui.legend.height,
+        self.legend = Legend(self.get_real_from_ratio(conf.ui.legend.left, True), 
+                                self.get_real_from_ratio(conf.ui.legend.top, False), 
+                                self.get_real_from_ratio(conf.ui.legend.width, True), 
+                                self.get_real_from_ratio(conf.ui.legend.height, False),
                              self.paused, self.simulation_speed, self.simulation_time)
-        self.ui = UI(self.screen, conf.ui.font_filename, conf.ui.font_size, conf.ui.position[0], conf.ui.position[1],
-                     conf.ui.width, conf.ui.height, self.legend)
+        
+        self.ui = UI(self.screen, conf.ui.font_filename, conf.ui.font_size, 
+                        self.get_real_from_ratio(conf.ui.position[0], True), 
+                        self.get_real_from_ratio(conf.ui.position[1], False),
+                        self.get_real_from_ratio(conf.ui.width, True), 
+                        self.get_real_from_ratio(conf.ui.height, False), 
+                    self.legend)
 
         # Coffee Corner
         self.coffee_corner = CoffeeCorner(self.env, self.screen,
-                                          conf.coffee_corner.position[0], conf.coffee_corner.position[1],
-                                          conf.coffee_corner.width, conf.coffee_corner.height)
+                                            self.get_real_from_ratio(conf.coffee_corner.position[0], True), 
+                                            self.get_real_from_ratio(conf.coffee_corner.position[1], False),
+                                            self.get_real_from_ratio(conf.coffee_corner.width, True), 
+                                            self.get_real_from_ratio(conf.coffee_corner.height, False)
+                                        )
 
         # TODO: When you want more or less coffee machines you could remove amount in the configuration and in the logic
         #  below make use of all the "positions" in the configuration for a more generic approach.
@@ -83,28 +101,40 @@ class Simulation:
         for i in range(conf.coffee_machine.amount):
             self.coffee_machines.append(CoffeeMachine(self.env, self.screen,
                                                  Path(conf.coffee_machine.image),
-                                                 image_size=(conf.coffee_machine.width, conf.coffee_machine.height),
+                                                 image_size=(self.get_real_from_ratio(conf.coffee_machine.width, True), self.get_real_from_ratio(conf.coffee_machine.height, False)),
                                                  position=(
-                                                     conf.coffee_machine.position[i][0],
-                                                     conf.coffee_machine.position[i][1])))
+                                                     self.get_real_from_ratio(conf.coffee_machine.position[i][0], True),
+                                                     self.get_real_from_ratio(conf.coffee_machine.position[i][1], False))))
         self.coffee_corner.add_coffee_machines(self.coffee_machines)
 
         # Classroom
-        self.classroom = Classroom(self.env, self.screen, conf.classroom.position[0],
-                              conf.classroom.position[1], conf.classroom.width, conf.classroom.height,
-                              conf.classroom.seat_size, conf.classroom.seat_image, conf.classroom.student_table_offset,
-                              capacity=conf.classroom.seats)
+        self.classroom = Classroom(self.env, self.screen, 
+                                    self.get_real_from_ratio(conf.classroom.position[0], True), # position X
+                                    self.get_real_from_ratio(conf.classroom.position[1], False), # Position Y
+                                    self.get_real_from_ratio(conf.classroom.width, True), 
+                                    self.get_real_from_ratio(conf.classroom.height, False),
+                                    self.get_real_from_ratio(conf.classroom.seat_size, True), 
+                                    conf.classroom.seat_image, 
+                                    conf.classroom.student_table_offset,
+                                    capacity=conf.classroom.seats
+                                )
 
         # Hallway
-        self.hallway = Hallway(self.env, self.screen, conf.hallway.position[0], conf.hallway.position[1], conf.hallway.width,
-                          conf.hallway.height, conf.hallway.spot_size, conf.hallway.rows)
+        self.hallway = Hallway(self.env, self.screen, 
+                                self.get_real_from_ratio(conf.hallway.position[0], True), 
+                                self.get_real_from_ratio(conf.hallway.position[1], False),
+                                self.get_real_from_ratio(conf.hallway.width, True),
+                                self.get_real_from_ratio(conf.hallway.height, False),
+                                self.get_real_from_ratio(conf.hallway.spot_size, True), 
+                                conf.hallway.rows
+                            )
 
         # Students
         # TODO: You might want to change the way students are spawned
         NUM_STUDENTS = 60
         self.students = []
-        image_size = conf.student.size
-        image_grid_size = conf.student.grid_size
+        image_size = (self.get_real_from_ratio(conf.student.size[0], True), self.get_real_from_ratio(conf.student.size[1], False))
+        image_grid_size = (self.get_real_from_ratio(conf.student.grid_size[0], True), self.get_real_from_ratio(conf.student.grid_size[1], False))
         student_names = NameGenerator().randomNames(NUM_STUDENTS)
         # If you uncomment the line below, the students each get a unique character as a name,
         # which is arguably easier to read for debugging.
@@ -221,6 +251,7 @@ class Simulation:
         pygame.display.set_caption("School Sim")
         buffer_screen = pygame_screen.copy()
         background = pygame.image.load(Path(conf.background)).convert()
+        background = pygame.transform.scale(background, (conf.screen.width, conf.screen.height))
         buffer_screen.blit(background, (0, 0))
         pygame.font.init()
         return pygame_screen, buffer_screen, background

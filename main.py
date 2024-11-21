@@ -16,7 +16,7 @@ if __name__ == "__main__":
     simulation = Simulation(conf)
 
     dataViewer = DataViewer(simulation.students)
-    dataViewer.plotThirstDistribution()
+    # dataViewer.plotThirstDistribution()
 
     """
     The simulation runs regardless of the speed at which the graphics can be drawn,

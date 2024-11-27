@@ -2,11 +2,14 @@ import random
 import pygame
 import simpy
 from pathlib import Path
+import numpy as np
 import time
 import sys
 from box import Box
+from typing import List
 
 from classroom import Classroom
+from scheduler import Scheduler
 from coffee_corner import CoffeeCorner
 from coffee_machine import CoffeeMachine
 from hallway import Hallway
@@ -67,7 +70,7 @@ class Simulation:
         self.paused = not conf.headless
 
         # initialize time settings
-        self.simulation_speed = 10 if not conf.headless else 999999999 # dirty fix for headless
+        self.simulation_speed = 1 if not conf.headless else 999999999 # dirty fix for headless
         self.fps = 20
         self.max_end_time = 5000000
         self.last_frame_time = time.time()
@@ -131,14 +134,14 @@ class Simulation:
 
         # Students
         # TODO: You might want to change the way students are spawned
-        NUM_STUDENTS = 60
+        NUM_STUDENTS = 30
         self.students = []
         image_size = (self.get_real_from_ratio(conf.student.size[0], True), self.get_real_from_ratio(conf.student.size[1], False))
         image_grid_size = (self.get_real_from_ratio(conf.student.grid_size[0], True), self.get_real_from_ratio(conf.student.grid_size[1], False))
         student_names = NameGenerator().randomNames(NUM_STUDENTS)
         # If you uncomment the line below, the students each get a unique character as a name,
         # which is arguably easier to read for debugging.
-        # student_names = [chr(i) for i in range(65, 65+NUM_STUDENTS)]
+        student_names = [chr(i) for i in range(65, 65+NUM_STUDENTS)]
         for i in range(NUM_STUDENTS):
             image_path = random.choice(list(Path(conf.student.images_path).glob("*.png")))
             student = Student(student_names[i], self.env, self.screen, Path(image_path), image_size, image_grid_size,
@@ -146,6 +149,20 @@ class Simulation:
                         classroom=self.classroom, hallway=self.hallway)
             student.start_state(HallwayState(self.env, student))
             self.students.append(student)
+        
+        # After creating the students array we assign a schedule to each student
+        scheduler: Scheduler = Scheduler(students=self.students, lessons=[], classes=["V1A", "V1B", "V2A", "V2B"])
+
+        # Split the array in to two equal parts. Where each index is a student pair. This student pair will be assigned as friends of each other
+        # So for example a student in the left array on index 0 would be friends with the students on the right array on index 0.
+        half_array_size = (int)(len(self.students) / 2)
+
+        left_student_array: List[Student] = self.students[half_array_size:]
+        right_student_array: List[Student] = self.students[:half_array_size]
+
+        for i in range(half_array_size):
+            left_student_array[i].set_friend(right_student_array[i])
+            right_student_array[i].set_friend(left_student_array[i])
 
     def draw(self, delta_time):
         """

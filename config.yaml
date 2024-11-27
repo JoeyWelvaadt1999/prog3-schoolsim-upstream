@@ -1,7 +1,7 @@
 headless: false
 screen:
-  height: 800
-  width: 800
+  height: 1000
+  width: 1000
   position: !!python/tuple [0,0]
 background: "images/background.png"
 classroom:

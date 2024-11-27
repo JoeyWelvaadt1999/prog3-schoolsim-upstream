@@ -35,6 +35,9 @@ class Student():
 
         # This is a way to introduce randomness properly (part of the Math course later on)
         self.general_thirstiness = np.random.poisson(lam=2, size=1)
+        
+        # Another student
+        self.friend: Student = None
 
         self.drink = ""
         self.text = ".."
@@ -54,7 +57,8 @@ class Student():
     def __str__(self):
         return f"Name: {self.name}\n" \
                f"State: {self.fsm.state}\n" \
-               f"Thoughts: {self.text}"\
+               f"Thoughts: {self.text}\n" \
+               f"Friend: {self.friend.name}\n" \
 
 
     def _get_shortest_queue(self, coffee_machines):
@@ -71,7 +75,15 @@ class Student():
         # Tell everyone you left the queue so they can move up a spot
         coffee_machine.signal.emit()
 
+    # Use this function to set a friend for the current student, but only if they do not have a friend yet.
+    def set_friend(self, friend):
+        if(self.friend == None):
+            self.friend = friend
+
     def move_up(self):
+        # print(self.position[0], self.position[1], fromPosition)
+        # if(fromPosition[1] < self.position[1]+self.image_size[1]):
+        #     print(f"{self.name}: Needs to move up")
         self.change_position((self.position[0], self.position[1]-self.image_size[1]))
 
     def change_position(self, pos):

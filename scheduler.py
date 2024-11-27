@@ -18,6 +18,7 @@ class Scheduler ():
         print(studentsPerClass, restStudents)
 
         students_copy: List[Student] = students.copy()
+        np.random.shuffle(students_copy)
         class_schedules = {}
 
         student_class_mapping = {}
@@ -27,11 +28,10 @@ class Scheduler ():
             class_schedules[current_class] = class_schedule
             # Get studentsPerClass amount of random students from the students array
 
-            randomIndexes = sorted(np.random.randint(0, len(students_copy) - 1, studentsPerClass))
-            randomIndexes.reverse()
             
-            for j in range(len(randomIndexes)):
-                student = students_copy.pop(randomIndexes[j])
+            
+            for j in range(studentsPerClass):
+                student = students_copy.pop((studentsPerClass - 1) - j)
                 student_class_mapping[student.name] = {
                     "class": current_class,
                     "schedule": class_schedule

@@ -4,6 +4,7 @@ import sys
 
 from simulation import Simulation
 from visualization.data_viewer import DataViewer
+from visualization.data_storage import DataStorage
 
 # init logging
 logger = util.logger
@@ -16,6 +17,7 @@ if __name__ == "__main__":
     simulation = Simulation(conf)
 
     dataViewer = DataViewer(simulation.students)
+    store = DataStorage()
     # dataViewer.plotThirstDistribution()
 
     """

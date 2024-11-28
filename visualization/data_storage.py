@@ -1,6 +1,5 @@
 import os
 import pandas as pd
-from student import Student
 
 class DataStorage():
     def __init__(self):
@@ -13,6 +12,8 @@ class DataStorage():
         if(not os.path.exists(self.current_batch_dir)):
             os.mkdir(self.current_batch_dir)
 
+        self.current_run_data = None
+
         self.start_run()
 
 
@@ -24,10 +25,15 @@ class DataStorage():
         self.current_run_csv = os.path.join(self.current_run_dir, "data.csv")
         self.current_run_data = []
 
-    def add_data_entry(self, timestamp: int, student: Student, action: str, duration: int) -> None:
-        pass
+    # Cant give student type because of circular imports
+    def add_data_entry(self, timestamp: int, student, action: str, duration: int) -> None:
+        if self.current_run_data != None:
+            self.current_run_data.append([timestamp, student.name, action, duration, timestamp // (360 * 8), student.total_drinks])
 
     def end_run(self) -> None:
-        data_frame = pd.DataFrame(self.current_run_data, columns=["Timestamp", "Name", "Action", "Duration"])
-        data_frame.to_csv(self.current_run_csv)
-        pass
+        data_frame = pd.DataFrame(self.current_run_data, columns=["Timestamp", "Name", "Action", "Duration", "Day", "Total Drinks"])
+        data_frame.to_csv(self.current_run_csv, index_label="ID")
+
+        self.current_run_data = None
+        
+

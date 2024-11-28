@@ -20,12 +20,14 @@ class CoffeeState(State):
         self.drink_choice = (["coffee", "tea"], 1, [0.8, 0, 2])
 
     def enter(self) -> None:
+        self.entered_state_at = self.env.now
         self.waiting_patience = np.random.randint(0, 5)
 
     # TODO: Placeholder, student inserts modelled behaviour here
     def step(self):
         nr_of_drinks = np.random.poisson(self.student.general_thirstiness, size=1)[0]
 
+        # Keep track of the amount of drinks a student drinks
         coffee_machine = self.student.enter_coffee_machine_queue()
 
         self.student.text = "Is waiting their turn for drinks"
@@ -47,12 +49,13 @@ class CoffeeState(State):
 
                 yield self.env.timeout(nr_of_drinks * 2)
                 self.student.text = f"Acquired {self.drink}."
+                self.student.total_drinks += nr_of_drinks
             else: 
                 print(f"{self.student.name}: Thinks the queue is too long")
                 self.student.text = f"What a long queue, i'll find another time to get coffee"
 
         self.student.leave_coffee_machine_queue(coffee_machine)
-
+        self.student.store.add_data_entry(self.env.now, self.student, "Co", self.env.now - self.entered_state_at)
         self.student.text = "At the hallway. Walking to the classroom"
         from states.hallway_state import HallwayState
         new_state = HallwayState(self.env, self.student)

@@ -1,4 +1,4 @@
-headless: false
+headless: true
 screen:
   height: 1000
   width: 1000

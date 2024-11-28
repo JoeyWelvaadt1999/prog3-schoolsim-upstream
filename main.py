@@ -14,10 +14,9 @@ if __name__ == "__main__":
     # init config
     conf = util.get_conf()
 
-    simulation = Simulation(conf)
-
-    dataViewer = DataViewer(simulation.students)
     store = DataStorage()
+    simulation = Simulation(conf, store)
+    dataViewer = DataViewer(simulation.students)
     # dataViewer.plotThirstDistribution()
 
     """
@@ -38,6 +37,10 @@ if __name__ == "__main__":
                 simulation.draw(delta_time)
                 simulation.handle_pygame_events()
             last_time = current_time
+        if simulation.simulation_time > simulation.max_end_time:
+            break
+        
+    store.end_run()
 
     # Currently, the simulation screen terminates automatically when the end time is reached.
     # Uncomment the code below if you want the screen to remain until it is manually closed.

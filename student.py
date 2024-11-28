@@ -7,15 +7,18 @@ import numpy as np
 from simpy_fsm import SimpyFSM
 from spritesheet import Spritesheet
 from state import State
+from visualization.data_storage import DataStorage
 
 class Student():
 
     def __init__(self, name: str, env: simpy.Environment, screen: pygame.surface.Surface,
-                 image: Path, image_size: (int, int), image_grid_size: (int, int), **knowledge_base):
+                 image: Path, image_size: (int, int), image_grid_size: (int, int), 
+                 store: DataStorage, **knowledge_base):
         self.name = name
         self.uid = uuid.uuid4()
         self.selected = False
 
+        self.store: DataStorage = store
         self.env = env
 
         self.spritesheet = Spritesheet(image)
@@ -38,6 +41,7 @@ class Student():
         
         # Another student
         self.friend: Student = None
+        self.total_drinks = 0
 
         self.drink = ""
         self.text = ".."
@@ -45,6 +49,9 @@ class Student():
 
     def start_state(self, initial_state: State):
         self.fsm = SimpyFSM(initial_state, self.env)
+
+    def reset(self):
+        self.total_drinks = 0
 
     def draw(self, delta_time):
         if self.selected:

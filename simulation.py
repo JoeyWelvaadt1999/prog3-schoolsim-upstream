@@ -18,11 +18,12 @@ from states.hallway_state import HallwayState
 from student import Student
 from ui import UI, Legend
 from pygame.locals import *
+from visualization.data_storage import DataStorage
 
 
 class Simulation:
 
-    def __init__(self, conf: Box):
+    def __init__(self, conf: Box, store: DataStorage):
         """
         Initialize all attributes without declaring their values, then use reset() to declare values.
         :param conf: configuration for the simulation
@@ -45,6 +46,8 @@ class Simulation:
         self.hallway = None
         self.students = None
         self.conf = conf
+
+        self.store = store
 
         self.reset(conf)
 
@@ -70,9 +73,9 @@ class Simulation:
         self.paused = not conf.headless
 
         # initialize time settings
-        self.simulation_speed = 1 if not conf.headless else 999999999 # dirty fix for headless
+        self.simulation_speed = 1 if not conf.headless else 999999 # dirty fix for headless
         self.fps = 20
-        self.max_end_time = 5000000
+        self.max_end_time = 1
         self.last_frame_time = time.time()
         self.simulation_time = 0
 
@@ -144,7 +147,7 @@ class Simulation:
         student_names = [chr(i) for i in range(65, 65+NUM_STUDENTS)]
         for i in range(NUM_STUDENTS):
             image_path = random.choice(list(Path(conf.student.images_path).glob("*.png")))
-            student = Student(student_names[i], self.env, self.screen, Path(image_path), image_size, image_grid_size,
+            student = Student(student_names[i], self.env, self.screen, Path(image_path), image_size, image_grid_size, self.store,
                         coffee_machines=self.coffee_machines,
                         classroom=self.classroom, hallway=self.hallway)
             student.start_state(HallwayState(self.env, student))
@@ -189,6 +192,8 @@ class Simulation:
 
         for event in events:
             if event.type == pygame.QUIT:
+                
+                self.store.end_run()
                 pygame.QUIT
                 sys.exit()
             # mouse clicks
@@ -243,9 +248,16 @@ class Simulation:
         self.ui.legend.sim_time = self.simulation_time
         if not self.conf.headless:
             self.ui.draw()
-
+        total = 0
+        current = 0
+        
         # env.peek() gives the time of the next event in the simpy environment
         while self.env.peek() < self.simulation_time:
+            current = self.env.now - total
+            # 360 * 8 is 1 day, the student information should reset
+            if(current // (360 * 8) == 1):
+                [student.reset() for student in self.students]
+                total = self.env.now
             self.env.step()
 
     def calculate_screen_transform(self):

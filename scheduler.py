@@ -21,10 +21,10 @@ class Scheduler ():
         np.random.shuffle(students_copy)
         class_schedules = {}
 
-        student_class_mapping = {}
+        self.student_class_mapping = {}
         for i in range(len(classes)):
             current_class = classes[i]
-            class_schedule = self.create_schedule()
+            class_schedule = self.create_schedule(i)
             class_schedules[current_class] = class_schedule
             # Get studentsPerClass amount of random students from the students array
 
@@ -32,7 +32,7 @@ class Scheduler ():
             
             for j in range(studentsPerClass):
                 student = students_copy.pop((studentsPerClass - 1) - j)
-                student_class_mapping[student.name] = {
+                self.student_class_mapping[student.name] = {
                     "class": current_class,
                     "schedule": class_schedule
                 }
@@ -41,17 +41,21 @@ class Scheduler ():
         for i in range(restStudents):
             print(f"{len(students_copy)}, {i}")
             student = students_copy.pop((len(students_copy) - 1) - i)
-            student_class_mapping[student.name] = {
+            self.student_class_mapping[student.name] = {
                 "class": classes[0],
                 "schedule": class_schedules[classes[0]]
             }
 
-        print(len(student_class_mapping.keys()))
+        print(class_schedules)
 
+    def get_schedule_information(self, name) -> dict:
+        print(self.student_class_mapping[name])
+        return self.student_class_mapping[name]    
+
+    def create_schedule (self, index) -> List[int]:
+        base_schedule = [1,0,1,0,1,1,0,1]
         
-
-    def create_schedule (self) -> List[int]:
-        pass
+        return np.roll(base_schedule, index)
 
 
         

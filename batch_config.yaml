@@ -1,0 +1,37 @@
+configurations: 
+  0: 
+    schedule: false
+    characteristics: false
+    coffee_machines: 2
+    students: 30
+    run_times: 4
+  1: 
+    schedule: false
+    characteristics: false
+    coffee_machines: 5
+    students: 30
+    run_times: 4
+  2: 
+    schedule: false
+    characteristics: false
+    coffee_machines: 5
+    students: 60
+    run_times: 4
+  3: 
+    schedule: true
+    characteristics: false
+    coffee_machines: 5
+    students: 60
+    run_times: 4
+  4: 
+    schedule: true
+    characteristics: true
+    coffee_machines: 2
+    students: 60
+    run_times: 4
+  5:
+    schedule: true
+    characteristics: true
+    coffee_machines: 5
+    students: 60
+    run_times: 4

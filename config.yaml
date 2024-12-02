@@ -1,4 +1,4 @@
-headless: true
+headless: false
 screen:
   height: 1000
   width: 1000
@@ -25,10 +25,15 @@ coffee_machine:
   image: "images/coffee_machine.png"
   height: 0.053
   width: 0.038
-  amount: 2
+  amount: 6
+  position_base: !!python/tuple [0.76, 0.09]
+  position_step: !!python/tuple [0.075, 0]
   position:
-    0: !!python/tuple [0.68, 0.09]
-    1: !!python/tuple [0.82, 0.09]
+    0: !!python/tuple [0.61, 0.09]
+    1: !!python/tuple [0.685, 0.09]
+    2: !!python/tuple [0.76, 0.09]
+    3: !!python/tuple [0.835, 0.09]
+    4: !!python/tuple [0.91, 0.09]
 hallway:
   height: 0.2
   width: 0.88

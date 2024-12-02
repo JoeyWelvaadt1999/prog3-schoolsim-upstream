@@ -3,6 +3,7 @@ import pygame
 import simpy
 from pathlib import Path
 import numpy as np
+from typing import List
 
 from simpy_fsm import SimpyFSM
 from spritesheet import Spritesheet
@@ -13,7 +14,7 @@ class Student():
 
     def __init__(self, name: str, env: simpy.Environment, screen: pygame.surface.Surface,
                  image: Path, image_size: (int, int), image_grid_size: (int, int), 
-                 store: DataStorage, **knowledge_base):
+                 store: DataStorage, has_schedule: bool, has_characteristics: bool, **knowledge_base):
         self.name = name
         self.uid = uuid.uuid4()
         self.selected = False
@@ -39,9 +40,15 @@ class Student():
         # This is a way to introduce randomness properly (part of the Math course later on)
         self.general_thirstiness = np.random.poisson(lam=2, size=1)
         
+        self.has_schedule = has_schedule
+        self.has_characteristics = has_characteristics
+
         # Another student
         self.friend: Student = None
         self.total_drinks = 0
+        self.time_in_class = 0
+        self.schedule: List[int] = None
+        self.school_class: str = None
 
         self.drink = ""
         self.text = ".."
@@ -52,6 +59,7 @@ class Student():
 
     def reset(self):
         self.total_drinks = 0
+        self.time_in_class = 0
 
     def draw(self, delta_time):
         if self.selected:
@@ -62,7 +70,8 @@ class Student():
         return rhs is Student and self.uid == rhs.uid and isinstance(rhs, Student)
 
     def __str__(self):
-        return f"Name: {self.name}\n" \
+        return f"Class: {self.school_class}\n" \
+               f"Name: {self.name}\n" \
                f"State: {self.fsm.state}\n" \
                f"Thoughts: {self.text}\n" \
                f"Friend: {self.friend.name}\n" \
@@ -83,9 +92,16 @@ class Student():
         coffee_machine.signal.emit()
 
     # Use this function to set a friend for the current student, but only if they do not have a friend yet.
-    def set_friend(self, friend):
+    def set_friend(self, friend) -> None:
         if(self.friend == None):
             self.friend = friend
+
+    def set_schedule_information(self, schedule: dict) -> None:
+        self.schedule = schedule['schedule']
+        self.school_class = schedule['class']
+
+    def should_be_in_class(self, index) -> bool:
+        return bool(self.schedule[index])
 
     def move_up(self):
         # print(self.position[0], self.position[1], fromPosition)

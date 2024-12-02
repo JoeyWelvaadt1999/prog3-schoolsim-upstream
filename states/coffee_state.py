@@ -21,7 +21,7 @@ class CoffeeState(State):
 
     def enter(self) -> None:
         self.entered_state_at = self.env.now
-        self.waiting_patience = np.random.randint(0, 5)
+        self.waiting_patience = np.random.randint(0, 5 if self.student.has_characteristics else 10**5)
 
     # TODO: Placeholder, student inserts modelled behaviour here
     def step(self):
@@ -35,7 +35,7 @@ class CoffeeState(State):
         with coffee_machine.resource.request() as req:
             yield req
             if(len(coffee_machine.signal.students) < self.waiting_patience):
-                
+                        
                 print(f"{self.student.name}'s turn!")
                 # TODO: logischer om deze keuze vanuit classroom te maken
                 self.student.text = "What drink to take...\nHm...."

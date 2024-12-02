@@ -3,7 +3,7 @@ import simpy
 
 from state import State
 from student import Student
-from util import print_stats
+from util import print_stats, Clock
 
 """
 Behaviour of a student in the classroom
@@ -17,7 +17,7 @@ class ClassroomState(State):
         self.animation_speed = max(random.normalvariate(0.5, 0.05), 0.25)
 
     def enter(self) -> None:
-        pass
+        self.temp_now = self.env.now
 
     # TODO: Placeholder, student inserts modelled behaviour here
     def step(self):
@@ -33,17 +33,26 @@ class ClassroomState(State):
             self.table_number, position = _classroom.place_student()
             self.student.change_position(position)
             self.student.text = "At the classroom. Learning incredible things about Discrete Event Systems"
-            print(f"time cr before timeout {self.env.now}")
+            # print(f"time cr before timeout {self.env.now}")
             yield self.env.timeout(10)
-            print(f"time cr after timeout {self.env.now}")
+            # print(f"time cr after timeout {self.env.now}")
 
+        
         _classroom.open_spot(self.table_number)
 
-        self.student.text = "Walking from the classroom via the hallway to the coffee corner to get a drink"
-        from states.hallway_state import HallwayState
-        new_state = HallwayState(self.env, self.student)
-        new_state.sprite = 7
-        self.switch_state(new_state)
+        if(not self.student.should_be_in_class(Clock.hour) and self.student.has_schedule):
+            self.student.text = "Walking from the classroom via the hallway to the coffee corner to get a drink"
+            from states.hallway_state import HallwayState
+            new_state = HallwayState(self.env, self.student)
+            new_state.sprite = 7
+            self.switch_state(new_state)
+        else:
+            self.student.text = "Walking from the classroom via the hallway to the coffee corner to get a drink"
+            from states.hallway_state import HallwayState
+            new_state = HallwayState(self.env, self.student)
+            new_state.sprite = 7
+            self.switch_state(new_state)
 
     def leave(self) -> None:
+        self.student.time_in_class += (self.env.now - self.temp_now) / 360
         pass 

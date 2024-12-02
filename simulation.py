@@ -7,6 +7,7 @@ import time
 import sys
 from box import Box
 from typing import List
+import util
 
 from classroom import Classroom
 from scheduler import Scheduler
@@ -23,7 +24,7 @@ from visualization.data_storage import DataStorage
 
 class Simulation:
 
-    def __init__(self, conf: Box, store: DataStorage):
+    def __init__(self, conf: Box, store: DataStorage, batch_configuration: Box):
         """
         Initialize all attributes without declaring their values, then use reset() to declare values.
         :param conf: configuration for the simulation
@@ -46,10 +47,11 @@ class Simulation:
         self.hallway = None
         self.students = None
         self.conf = conf
+        self.batch_configuration = batch_configuration
 
         self.store = store
 
-        self.reset(conf)
+        self.reset(conf, batch_configuration)
 
     """
         I changed the values in the config to be ratios instead of fixed values, this function returns the value it was supposed to be taking the width and height of the simulation
@@ -58,7 +60,7 @@ class Simulation:
         otherNumber = self.conf.screen.width if isWidth else self.conf.screen.height
         return int(otherNumber * ratio)
 
-    def reset(self, conf):
+    def reset(self, conf: Box, batch_configuration: Box):
         """
         Reset the simulation. Set all attributes of the simulation to their initial values
         :param conf: configuration for the simulation
@@ -73,9 +75,9 @@ class Simulation:
         self.paused = not conf.headless
 
         # initialize time settings
-        self.simulation_speed = 1 if not conf.headless else 999999 # dirty fix for headless
+        self.simulation_speed = 1 if not conf.headless else 99999*3 # dirty fix for headless
         self.fps = 20
-        self.max_end_time = 1
+        self.max_end_time = 500000 if not conf.headless else 1
         self.last_frame_time = time.time()
         self.simulation_time = 0
 
@@ -104,7 +106,8 @@ class Simulation:
         # TODO: When you want more or less coffee machines you could remove amount in the configuration and in the logic
         #  below make use of all the "positions" in the configuration for a more generic approach.
         self.coffee_machines = []
-        for i in range(conf.coffee_machine.amount):
+        clamp = lambda n, minn, maxn: max(min(maxn, n), minn)
+        for i in range(clamp(batch_configuration.coffee_machines, 1, 5)):
             self.coffee_machines.append(CoffeeMachine(self.env, self.screen,
                                                  Path(conf.coffee_machine.image),
                                                  image_size=(self.get_real_from_ratio(conf.coffee_machine.width, True), self.get_real_from_ratio(conf.coffee_machine.height, False)),
@@ -137,7 +140,7 @@ class Simulation:
 
         # Students
         # TODO: You might want to change the way students are spawned
-        NUM_STUDENTS = 30
+        NUM_STUDENTS = batch_configuration.students
         self.students = []
         image_size = (self.get_real_from_ratio(conf.student.size[0], True), self.get_real_from_ratio(conf.student.size[1], False))
         image_grid_size = (self.get_real_from_ratio(conf.student.grid_size[0], True), self.get_real_from_ratio(conf.student.grid_size[1], False))
@@ -147,7 +150,7 @@ class Simulation:
         student_names = [chr(i) for i in range(65, 65+NUM_STUDENTS)]
         for i in range(NUM_STUDENTS):
             image_path = random.choice(list(Path(conf.student.images_path).glob("*.png")))
-            student = Student(student_names[i], self.env, self.screen, Path(image_path), image_size, image_grid_size, self.store,
+            student = Student(student_names[i], self.env, self.screen, Path(image_path), image_size, image_grid_size, self.store, batch_configuration.schedule, batch_configuration.characteristics,
                         coffee_machines=self.coffee_machines,
                         classroom=self.classroom, hallway=self.hallway)
             student.start_state(HallwayState(self.env, student))
@@ -155,6 +158,8 @@ class Simulation:
         
         # After creating the students array we assign a schedule to each student
         scheduler: Scheduler = Scheduler(students=self.students, lessons=[], classes=["V1A", "V1B", "V2A", "V2B"])
+
+        [student.set_schedule_information(scheduler.get_schedule_information(student.name)) for student in self.students]
 
         # Split the array in to two equal parts. Where each index is a student pair. This student pair will be assigned as friends of each other
         # So for example a student in the left array on index 0 would be friends with the students on the right array on index 0.
@@ -248,16 +253,12 @@ class Simulation:
         self.ui.legend.sim_time = self.simulation_time
         if not self.conf.headless:
             self.ui.draw()
-        total = 0
-        current = 0
+        # total = 0
+        # current = 0
         
         # env.peek() gives the time of the next event in the simpy environment
         while self.env.peek() < self.simulation_time:
-            current = self.env.now - total
-            # 360 * 8 is 1 day, the student information should reset
-            if(current // (360 * 8) == 1):
-                [student.reset() for student in self.students]
-                total = self.env.now
+            util.Clock.update_clock(self.env, lambda s=self.students: [student.reset() for student in s])
             self.env.step()
 
     def calculate_screen_transform(self):

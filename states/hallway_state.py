@@ -2,6 +2,7 @@ import random
 from random import randint
 
 import simpy
+import util
 
 from state import State
 from student import Student
@@ -24,15 +25,22 @@ class HallwayState(State):
         self.student.change_position(position)
 
     def step(self):
+        
         yield self.env.timeout(randint(1, 8))
         self.hallway.remove_student(self.hallway_spot)
         self.hallway_spot = -1
         from states.classroom_state import ClassroomState
         from states.coffee_state import CoffeeState
-        if isinstance(self.fsm.previous_state, CoffeeState):
-            self.switch_state(ClassroomState(self.env, self.student))
+        if(self.student.has_schedule):
+            if(self.student.should_be_in_class(util.Clock.hour)):
+                self.switch_state(ClassroomState(self.env, self.student))
+            else: 
+                self.switch_state(CoffeeState(self.env, self.student))
         else:
-            self.switch_state(CoffeeState(self.env, self.student))
+            if isinstance(self.fsm.previous_state, CoffeeState):
+                self.switch_state(ClassroomState(self.env, self.student))
+            else:
+                self.switch_state(CoffeeState(self.env, self.student))
 
     def leave(self) -> None:
         pass

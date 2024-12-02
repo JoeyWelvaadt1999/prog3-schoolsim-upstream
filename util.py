@@ -2,9 +2,30 @@ import logging
 from pathlib import Path
 from box import Box
 import yaml
+import simpy
 
-class DataStorage():
-    pass
+class Clock(object):
+    total = 0
+    current = 0
+    day = 0
+    hour = 0
+    @staticmethod
+    def update_clock(env: simpy.Environment, callback: callable) -> None:
+        Clock.current = env.now - Clock.total
+        if(Clock.current // (360 * (Clock.hour + 1)) == 1):
+            Clock.hour += 1
+        if(Clock.current // (360 * 8) == 1):
+            callback()
+            Clock.total = env.now
+            Clock.hour = 0
+            Clock.day +=1
+    
+    @staticmethod
+    def reset_clock() -> None:
+        Clock.total = 0
+        Clock.current = 0
+        Clock.day = 0
+        Clock.hour = 0
 
 class QueueSignal:
     def __init__(self):
@@ -27,8 +48,8 @@ def print_stats(res):
     print(f'  Queued events: {res.queue}')
 
 
-def get_conf():
-    CONFIG = Path("config.yaml")
+def get_conf(path):
+    CONFIG = Path(path)
     conf: Box = Box.from_yaml(filename=CONFIG, Loader=yaml.FullLoader)
     return conf
 
@@ -54,7 +75,7 @@ def init_logger(conf):
 
 
 # init config
-conf = get_conf()
+conf = get_conf("config.yaml")
 
 # init logging
 logger = init_logger(conf)

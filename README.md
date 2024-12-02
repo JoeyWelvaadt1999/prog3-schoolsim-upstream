@@ -8,6 +8,14 @@ Studentnummer:
 Dit is een discrete event based simulatie die gebruik maakt van onder andere de libraries simpy en pygame. Het gedrag 
 van de agenten in de omgeving kan gemodelleerd worden met behulp van een finite state machine.
 
+# Information
+
+Run the application using the command: `python main.py --batch=False`. Batch can either be True or False
+
+Start with checking: `notebooks/Analyse.ipynb` and continue with `BatchDisplay.ipynb` after running a batch configuration
+
+Use the file `batch_config.yaml` to edit the amount of configurations run and how many times they have to be ran.
+
 # Installatie
 
 Download en installeer Anaconda (https://www.anaconda.com/download) op je systeem, als je dat nog niet gedaan hebt.
